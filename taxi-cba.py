@@ -8,7 +8,7 @@ from IPython.display import clear_output
 
 env = gym.make("Taxi-v2").env
 
-"""Training the agent"""
+########## Training the agent #################################################
 # Hyperparameters
 t_conf_gamma = 2
 t_dist_gamma = 2
@@ -65,7 +65,7 @@ for i in range(1, 100001):
 print("Training finished.\n")
 
 
-"""Evaluate agent's performance after CBA Training"""
+######### Evaluate agent's performance after CBA Training #####################
 
 total_epochs, total_penalties = 0, 0
 episodes = 100
