@@ -3,8 +3,10 @@
 
 
 import gym
-import random
+import numpy as np
 from IPython.display import clear_output
+
+from classifiers import classifier
 
 env = gym.make("Taxi-v2").env
 
@@ -35,8 +37,8 @@ for i in range(1, 100001):
         if pres == "n":     # 3. execute the Confident Execution step
             # 5. Put current state into classifier to get a_p, c, and db
             # 6. Get nearest neighbor for state
-            a_p, c, db = classifier(state)
-            d = nearest_neighbor(state)
+            a_p, c, db = classifier(env.decode(state))
+            d = nearest_neighbor(env.decode(state))
 
             if c > t_conf and d < t_dist:
                 state, reward, done, info = env.step(a_p)
