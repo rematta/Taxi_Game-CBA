@@ -29,6 +29,7 @@ def update_threshold(states: list):
     avg_dist = numpy.mean(dists[:, 1:], axis=1)
     return 0, avg_dist
 
+
 def process_state(state):
     taxirow, taxicol, passloc, destidx = state
     return taxirow, taxicol, passloc, destidx

@@ -52,7 +52,7 @@ for i in range(1, 100001):
                 states.append(process_state(env.decode(state)))
                 actions.append(pres)
                 svm = update_classifier(states, actions)
-                t_conf, t_dist = update_threshhold()
+                t_conf, t_dist = update_threshold(states)
 
                 state, reward, done, info = env.step(pres)
         else:   # 4. execute the Corrective Demonstration step
@@ -63,7 +63,7 @@ for i in range(1, 100001):
             states.append(state)
             actions.append(pres)
             svm = update_classifier(states, actions)
-            t_conf, t_dist = update_threshhold()            
+            t_conf, t_dist = update_threshold(states)
 
         
     if i % 100 == 0:
