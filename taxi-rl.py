@@ -2,18 +2,7 @@ import gym
 
 env = gym.make("Taxi-v2").env
 
-# #env.render()
-
-# env.reset() # reset environment to a new, random state
-# env.render()
-
-# print("Action Space {}".format(env.action_space))
-# print("State Space {}".format(env.observation_space))
-
-# print(env.get_action_meanings())
-
-
-%%time
+#%%time
 """Training the agent"""
 
 import random
@@ -52,6 +41,7 @@ for i in range(1, 100001):
             penalties += 1
 
         state = next_state
+        print(state)
         epochs += 1
         
     if i % 100 == 0:

@@ -1,10 +1,10 @@
 # TODO: 
-# 1. implement classifier(), nearest_neighbor(), update_classifier(), update_threshhold()
+# 1. implement classifier(), update_classifier(), update_threshhold()
 
 
 import gym
 import numpy as np
-from IPython.display import clear_output
+#from IPython.display import clear_output
 from sklearn.neighbors import NearestNeighbors
 from classifiers import classifier, update_classifier, process_state, nearest_neighbor, update_threshold
 
@@ -21,30 +21,37 @@ svm = None
 q_table = np.zeros([env.observation_space.n, env.action_space.n])
 nn = NearestNeighbors()
 
-for i in range(1, 100001):
+for i in range(1, 4):
     state = env.reset()
     epochs = 0
     done = False
     states = []
     actions = []
-    t_conf = float("inf")
+    action_space = [0,1,2,3,4,5]
+    t_conf = np.zeros(len(action_space))
+    for i in range(len(action_space)):
+        t_conf[i] = float("inf")
     t_dist = 0
 
     while not done:
         # 1. get sensor data step (i.e. the current state.  this is different for continuous actions)
         # 2. ask if expert wants to perform the corrective demonstration
         pres = "o"
+        env.render()
         while pres != "y" and pres != "n":
             pres = input("Do you want to correct the last action taken? [y/n]: ")
         
-        if pres == "n" or svm is not None:     # 3. execute the Confident Execution step
+        if pres == "n":     # 3. execute the Confident Execution step
             # 5. Put current state into classifier to get a_p, c, and db
             # 6. Get nearest neighbor for state
             a_p, c, db = classifier(svm, env.decode(state))
-            d = nearest_neighbor(nn, env.decode(state))
+            d = nearest_neighbor(nn, states, env.decode(state))
+            states.append(env.decode(state))
 
-            if c > t_conf and d < t_dist:
+            if c > t_conf[a_p] and d < t_dist:
                 state, reward, done, info = env.step(a_p)
+                states.append(process_state(env.decode(state)))
+                actions.append(a_p)
             else:
                 pres = -1
                 while pres not in [0, 1, 2, 3, 4, 5]:
@@ -52,7 +59,7 @@ for i in range(1, 100001):
                 states.append(process_state(env.decode(state)))
                 actions.append(pres)
                 svm = update_classifier(states, actions)
-                t_conf, t_dist = update_threshold(states)
+                t_conf, t_dist = update_threshold(states, actions, action_space, t_dist_gamma, t_conf_gamma)
 
                 state, reward, done, info = env.step(pres)
         else:   # 4. execute the Corrective Demonstration step
@@ -60,14 +67,17 @@ for i in range(1, 100001):
             env.render()
             while pres not in [0, 1, 2, 3, 4, 5]:
                 pres = int(input("Expert: enter the next action I should take [0-5]: "))
-            states.append(state)
+            states.append(process_state(env.decode(state)))
             actions.append(pres)
             svm = update_classifier(states, actions)
-            t_conf, t_dist = update_threshold(states)
+            t_conf, t_dist = update_threshold(states, actions, action_space, t_dist_gamma, t_conf_gamma)
+
+            if (len(actions) < 5):
+                state, reward, done, info = env.step(pres)
 
         
     if i % 100 == 0:
-        clear_output(wait=True)
+        #clear_output(wait=True)
         print(f"Episode: {i}")
 
 print("Training finished.\n")
