@@ -57,7 +57,7 @@ def nearest_neighbor(nn, states, state):
 
 
 def update_threshold(states, actions, action_space, t_dist_gamma, t_conf_gamma):
-    if (len(states) < 5):
+    if len(states) < 5:
         t_conf = np.zeros(len(action_space))
         for i in range(len(action_space)):
             t_conf[i] = float("inf")
@@ -114,5 +114,4 @@ def update_threshold(states, actions, action_space, t_dist_gamma, t_conf_gamma):
 
 
 def process_state(state):
-    taxirow, taxicol, passloc, destidx = state
-    return taxirow, taxicol, passloc, destidx
+    return state
