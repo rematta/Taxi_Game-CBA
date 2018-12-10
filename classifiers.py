@@ -13,10 +13,12 @@ def classifier(svm: SVC, state):
     return a_p, c, None
 
 
-def update_classifier(states, actions):
+def update_classifiers(states, actions):
     svm = SVC()
     svm.fit(states, actions)
-    return svm
+    nn = NearestNeighbors()
+    nn.fit(states, actions)
+    return svm, nn
 
 
 def nearest_neighbor(nn: NearestNeighbors, state):

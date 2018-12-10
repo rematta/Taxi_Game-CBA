@@ -6,7 +6,7 @@ import gym
 import numpy as np
 from IPython.display import clear_output
 from sklearn.neighbors import NearestNeighbors
-from classifiers import classifier, update_classifier, process_state, nearest_neighbor, update_threshold
+from classifiers import classifier, update_classifiers, process_state, nearest_neighbor, update_threshold
 
 env = gym.make("Taxi-v2").env
 
@@ -19,7 +19,7 @@ t_dist_gamma = 2
 all_epochs = []
 svm = None
 q_table = np.zeros([env.observation_space.n, env.action_space.n])
-nn = NearestNeighbors()
+nn = None
 
 for i in range(1, 100001):
     state = env.reset()
@@ -51,7 +51,7 @@ for i in range(1, 100001):
                     pres = input("Expert: enter the next action I should take [0-5]: ")
                 states.append(process_state(env.decode(state)))
                 actions.append(pres)
-                svm = update_classifier(states, actions)
+                svm, nn = update_classifiers(states, actions)
                 t_conf, t_dist = update_threshold(states)
 
                 state, reward, done, info = env.step(pres)
@@ -62,7 +62,7 @@ for i in range(1, 100001):
                 pres = int(input("Expert: enter the next action I should take [0-5]: "))
             states.append(state)
             actions.append(pres)
-            svm = update_classifier(states, actions)
+            svm, nn = update_classifiers(states, actions)
             t_conf, t_dist = update_threshold(states)
 
         
