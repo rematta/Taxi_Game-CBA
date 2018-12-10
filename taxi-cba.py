@@ -51,7 +51,8 @@ for i in range(1, 100001):
                     pres = input("Expert: enter the next action I should take [0-5]: ")
                 states.append(process_state(env.decode(state)))
                 actions.append(pres)
-                svm, nn = update_classifiers(states, actions)
+                if len(states) > 2 and len(actions) > 2:
+                    svm, nn = update_classifiers(states, actions)
                 t_conf, t_dist = update_threshold(states)
 
                 state, reward, done, info = env.step(pres)
@@ -62,7 +63,8 @@ for i in range(1, 100001):
                 pres = int(input("Expert: enter the next action I should take [0-5]: "))
             states.append(state)
             actions.append(pres)
-            svm, nn = update_classifiers(states, actions)
+            if len(states) > 2 and len(actions) > 2:
+                svm, nn = update_classifiers(states, actions)
             t_conf, t_dist = update_threshold(states)
 
         
