@@ -10,10 +10,8 @@ from sklearn.model_selection import train_test_split
 # Note for later: for us, the actions is the vector/direction of the pan
 
 def classifier(svm: SVC, feature):
-    # taxirow, taxicol, passloc, destidx = state
-    # feature = [taxirow, taxicol, passloc, destidx]
-    a_p = svm.predict([feature])
-    c = svm.decision_function([feature])
+    a_p = svm.predict(feature)
+    c = svm.decision_function(feature)
     c = c[0][a_p[0]]
     return a_p[0], c, None
 
@@ -74,14 +72,14 @@ def update_threshold(states, actions, action_space, t_dist_gamma, t_conf_gamma):
 
     # t_conf update
     # 1. split dataset into training and test
-    X_train, X_test, y_train, y_test = train_test_split(states, actions, test_size=0.33, random_state=42)
+    x_train, x_test, y_train, y_test = train_test_split(states, actions, test_size=0.33, random_state=42)
     # add dummy values to make sure there is 1 state for each action in our action space
-    X_train.append((-100, -100, -100, -100))
-    X_train.append((-101, -100, -100, -100))
-    X_train.append((-102, -100, -100, -100))
-    X_train.append((-103, -100, -100, -100))
-    X_train.append((-104, -100, -100, -100))
-    X_train.append((-105, -100, -100, -100))
+    x_train.append((-100, -100, -100, -100))
+    x_train.append((-101, -100, -100, -100))
+    x_train.append((-102, -100, -100, -100))
+    x_train.append((-103, -100, -100, -100))
+    x_train.append((-104, -100, -100, -100))
+    x_train.append((-105, -100, -100, -100))
     y_train.append(0)
     y_train.append(1)
     y_train.append(2)
@@ -90,10 +88,10 @@ def update_threshold(states, actions, action_space, t_dist_gamma, t_conf_gamma):
     y_train.append(5)
 
     svm_temp = SVC(decision_function_shape='ovr')
-    svm_temp.fit(X_train, y_train)
+    svm_temp.fit(x_train, y_train)
 
-    y_test_pred = svm_temp.predict(X_test)
-    y_test_conf = svm_temp.decision_function(X_test)
+    y_test_pred = svm_temp.predict(x_test)
+    y_test_conf = svm_temp.decision_function(x_test)
 
     # 2. determine the # of incorrectly classified points per class
     miss_classified_num = np.zeros(len(action_space))

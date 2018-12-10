@@ -60,7 +60,7 @@ for i in range(1, 4):
                 actions.append(a_p)
             else:
                 pres = -1
-                while pres not in [0, 1, 2, 3, 4, 5]:
+                while pres not in range(0, 8):
                     pres = int(input("Expert: enter the next action I should take: "))
                 states.append(process_state(state))
                 actions.append(pres)
@@ -70,7 +70,7 @@ for i in range(1, 4):
                 # state, reward, done, info = env.step(pres)
         else:  # 4. execute the Corrective Demonstration step
             pres = -1
-            while pres not in [0, 1, 2, 3, 4, 5]:
+            while pres not in range(0, 8):
                 pres = int(input("Expert: enter the next action I should take: "))
             states.append(process_state(state))
             actions.append(pres)
