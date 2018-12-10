@@ -1,6 +1,7 @@
 # TODO: 
 # 1. implement classifier(), update_classifier(), update_threshhold()
 import csv
+import os
 
 import gym
 import numpy as np
@@ -25,7 +26,10 @@ def read_file(file):
 ########## Training the agent #################################################
 # Hyperparameters
 
-expert0 = read_file('expert_demo/expert_0.txt')
+experts = np.empty((6,13))
+for filename in os.listdir('expert_demo'):
+    current_expert = read_file('expert_demo/' + filename)
+    experts = np.concatenate((experts, current_expert))
 
 t_conf_gamma = 2
 t_dist_gamma = 2
