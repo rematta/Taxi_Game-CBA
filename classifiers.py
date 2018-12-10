@@ -27,8 +27,9 @@ def nearest_neighbor(nn: NearestNeighbors, state):
 
 def update_threshold(states: list):
     kdt = cKDTree(states)
-    dists, neighs = kdt.query(states, 1)
-    avg_dist = numpy.mean(dists[:, 1:], axis=1)
+    dists, neighs = kdt.query(states, 2)
+    dists = numpy.sum(dists, axis=1)
+    avg_dist = numpy.mean(dists)
     return 0, avg_dist
 
 
