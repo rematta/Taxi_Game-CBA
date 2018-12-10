@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.spatial import cKDTree
+import copy
 
 from sklearn.neighbors import NearestNeighbors
 from sklearn.svm import SVC
@@ -10,19 +11,35 @@ from sklearn.model_selection import train_test_split
 def classifier(svm: SVC, feature):
     #taxirow, taxicol, passloc, destidx = state
     #feature = [taxirow, taxicol, passloc, destidx]
-    c = svm.decision_function(feature)
-    a_p = svm.predict(feature)
-    return a_p, c, None
+    a_p = svm.predict([feature])
+    c = svm.decision_function([feature])
+    c = c[0][a_p[0]]
+    return a_p[0], c, None
+
+def update_classifier(states, actions):
+    # add dummy values to make sure there is 1 state for each action in our action space
+    st = copy.deepcopy(states)
+    at = copy.deepcopy(actions)
+    st.append((-100, -100, -100, -100))
+    st.append((-101, -100, -100, -100))
+    st.append((-102, -100, -100, -100))
+    st.append((-103, -100, -100, -100))
+    st.append((-104, -100, -100, -100))
+    st.append((-105, -100, -100, -100))
+    at.append(0)
+    at.append(1)
+    at.append(2)
+    at.append(3)
+    at.append(4)
+    at.append(5)
 
 
-def update_classifier(nn, states, actions):
     svm = SVC(decision_function_shape='ovr')
-    if (len(actions) < 5):
+    if (len(at) < 5):
         return svm
-    svm.fit(states, actions)
-    nn = NearestNeighbors()
-    nn.fit(states, actions)
-    return svm, nn
+    svm.fit(st, at)
+
+    return svm
 
 
 def nearest_neighbor(nn, states, state):
@@ -34,8 +51,8 @@ def nearest_neighbor(nn, states, state):
     #
     # return t_dist_gamma * (total_distance / len(T))
     nn.fit(states)
-    distance, neighbor = nn.kneighbors(state, 1, return_distance=True)
-    return distance
+    distance, neighbor = nn.kneighbors([state], 1, return_distance=True)
+    return distance[0][0]
 
 
 def update_threshold(states, actions, action_space, t_dist_gamma, t_conf_gamma):
@@ -58,8 +75,24 @@ def update_threshold(states, actions, action_space, t_dist_gamma, t_conf_gamma):
     # t_conf update
     # 1. split dataset into training and test
     X_train, X_test, y_train, y_test = train_test_split(states, actions, test_size = 0.33, random_state = 42)
+    # add dummy values to make sure there is 1 state for each action in our action space
+    X_train.append((-100,-100,-100,-100))
+    X_train.append((-101, -100, -100, -100))
+    X_train.append((-102, -100, -100, -100))
+    X_train.append((-103, -100, -100, -100))
+    X_train.append((-104, -100, -100, -100))
+    X_train.append((-105, -100, -100, -100))
+    y_train.append(0)
+    y_train.append(1)
+    y_train.append(2)
+    y_train.append(3)
+    y_train.append(4)
+    y_train.append(5)
+
     svm_temp = SVC(decision_function_shape='ovr')
     svm_temp.fit(X_train, y_train)
+
+
     y_test_pred = svm_temp.predict(X_test)
     y_test_conf = svm_temp.decision_function(X_test)
 
@@ -70,7 +103,7 @@ def update_threshold(states, actions, action_space, t_dist_gamma, t_conf_gamma):
     for i in range(len(y_test_pred)):
         if y_test[i] != y_test_pred[i]:
             miss_classified_num[y_test[i]] += 1
-            miss_classified_conf[y_test[i]] += y_test_conf[i]
+            miss_classified_conf[y_test[i]] += y_test_conf[i][y_test[i]]
 
     # 3. evaluate confidence thresholds for each class
     t_conf = np.zeros(len(action_space))

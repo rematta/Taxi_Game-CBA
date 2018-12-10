@@ -6,7 +6,8 @@ import gym
 import numpy as np
 #from IPython.display import clear_output
 from sklearn.neighbors import NearestNeighbors
-from classifiers import classifier, process_state, nearest_neighbor, update_threshold, update_classifier
+from sklearn.svm import SVC
+from classifiers import classifier, update_classifier, process_state, nearest_neighbor, update_threshold
 
 env = gym.make("Taxi-v2").env
 
@@ -17,9 +18,9 @@ t_dist_gamma = 2
 
 # For plotting metrics
 all_epochs = []
-svm = None
-q_table = np.zeros([env.observation_space.n, env.action_space.n])
-nn = None
+svm = SVC(decision_function_shape='ovr')
+#q_table = np.zeros([env.observation_space.n, env.action_space.n])
+nn = NearestNeighbors()
 
 for i in range(1, 4):
     state = env.reset()
@@ -44,9 +45,9 @@ for i in range(1, 4):
         if pres == "n":     # 3. execute the Confident Execution step
             # 5. Put current state into classifier to get a_p, c, and db
             # 6. Get nearest neighbor for state
-            a_p, c, db = classifier(svm, env.decode(state))
-            d = nearest_neighbor(nn, states, env.decode(state))
-            states.append(env.decode(state))
+            a_p, c, db = classifier(svm, process_state(env.decode(state)))
+            d = nearest_neighbor(nn, states, process_state(env.decode(state)))
+            #states.append(process_state(env.decode(state)))
 
             if c > t_conf[a_p] and d < t_dist:
                 state, reward, done, info = env.step(a_p)
@@ -55,7 +56,7 @@ for i in range(1, 4):
             else:
                 pres = -1
                 while pres not in [0, 1, 2, 3, 4, 5]:
-                    pres = input("Expert: enter the next action I should take [0-5]: ")
+                    pres = int(input("Expert: enter the next action I should take [0-5]: "))
                 states.append(process_state(env.decode(state)))
                 actions.append(pres)
                 svm = update_classifier(states, actions)
@@ -75,8 +76,6 @@ for i in range(1, 4):
 
             if (len(actions) < 5):
                 state, reward, done, info = env.step(pres)
-
-
         
     if i % 100 == 0:
         #clear_output(wait=True)
