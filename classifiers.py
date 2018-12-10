@@ -20,7 +20,9 @@ def update_classifier(states, actions):
     if (len(actions) < 5):
         return svm
     svm.fit(states, actions)
-    return svm
+    nn = NearestNeighbors()
+    nn.fit(states, actions)
+    return svm, nn
 
 
 def nearest_neighbor(nn, states, state):
@@ -47,6 +49,7 @@ def update_threshold(states, actions, action_space, t_dist_gamma, t_conf_gamma):
     # t_dist update
     kdt = cKDTree(states)
     dists, neighs = kdt.query(states, 2)
+
     dists = np.sum(dists, axis=1)
     avg_dist = np.mean(dists)
     t_dist = t_dist_gamma * avg_dist
@@ -75,6 +78,7 @@ def update_threshold(states, actions, action_space, t_dist_gamma, t_conf_gamma):
             t_conf[i] = t_conf_gamma * (miss_classified_conf[i] / miss_classified_num[i])
 
     return t_conf, t_dist
+
 
 
 def process_state(state):

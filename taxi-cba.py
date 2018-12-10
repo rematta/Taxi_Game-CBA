@@ -6,7 +6,7 @@ import gym
 import numpy as np
 #from IPython.display import clear_output
 from sklearn.neighbors import NearestNeighbors
-from classifiers import classifier, update_classifier, process_state, nearest_neighbor, update_threshold
+from classifiers import classifier, update_classifiers, process_state, nearest_neighbor, update_threshold
 
 env = gym.make("Taxi-v2").env
 
@@ -19,7 +19,7 @@ t_dist_gamma = 2
 all_epochs = []
 svm = None
 q_table = np.zeros([env.observation_space.n, env.action_space.n])
-nn = NearestNeighbors()
+nn = None
 
 for i in range(1, 4):
     state = env.reset()
@@ -61,6 +61,7 @@ for i in range(1, 4):
                 svm = update_classifier(states, actions)
                 t_conf, t_dist = update_threshold(states, actions, action_space, t_dist_gamma, t_conf_gamma)
 
+
                 state, reward, done, info = env.step(pres)
         else:   # 4. execute the Corrective Demonstration step
             pres = -1
@@ -74,6 +75,7 @@ for i in range(1, 4):
 
             if (len(actions) < 5):
                 state, reward, done, info = env.step(pres)
+
 
         
     if i % 100 == 0:
