@@ -14,8 +14,8 @@ def classifier(svm: SVC, feature):
     a_p = svm.predict(feature)
     return a_p, c, None
 
-def update_classifier(states, actions):
 
+def update_classifier(nn, states, actions):
     svm = SVC(decision_function_shape='ovr')
     if (len(actions) < 5):
         return svm
@@ -36,6 +36,7 @@ def nearest_neighbor(nn, states, state):
     nn.fit(states)
     distance, neighbor = nn.kneighbors(state, 1, return_distance=True)
     return distance
+
 
 def update_threshold(states, actions, action_space, t_dist_gamma, t_conf_gamma):
     if (len(states) < 5):

@@ -6,7 +6,7 @@ import gym
 import numpy as np
 #from IPython.display import clear_output
 from sklearn.neighbors import NearestNeighbors
-from classifiers import classifier, update_classifiers, process_state, nearest_neighbor, update_threshold
+from classifiers import classifier, process_state, nearest_neighbor, update_threshold, update_classifier
 
 env = gym.make("Taxi-v2").env
 
