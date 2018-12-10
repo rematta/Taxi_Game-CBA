@@ -1,6 +1,6 @@
 # TODO: 
 # 1. implement classifier(), update_classifier(), update_threshhold()
-
+import csv
 
 import gym
 import numpy as np
@@ -9,7 +9,13 @@ from sklearn.neighbors import NearestNeighbors
 from sklearn.svm import SVC
 from classifiers import classifier, update_classifier, process_state, nearest_neighbor, update_threshold
 
-env = gym.make("Taxi-v2").env
+
+def read_file(file):
+    with open(file, 'rb') as f:
+        reader = csv.reader(f)
+        your_list = list(reader)
+        return your_list
+
 
 ########## Training the agent #################################################
 # Hyperparameters
@@ -23,7 +29,7 @@ svm = SVC(decision_function_shape='ovr')
 nn = NearestNeighbors()
 
 for i in range(1, 4):
-    state = env.reset()
+    state = None
     epochs = 0
     done = False
     states = []
@@ -45,31 +51,30 @@ for i in range(1, 4):
         if pres == "n":     # 3. execute the Confident Execution step
             # 5. Put current state into classifier to get a_p, c, and db
             # 6. Get nearest neighbor for state
-            a_p, c, db = classifier(svm, process_state(env.decode(state)))
-            d = nearest_neighbor(nn, states, process_state(env.decode(state)))
+            a_p, c, db = classifier(svm, process_state(state))
+            d = nearest_neighbor(nn, states, process_state(state))
             #states.append(process_state(env.decode(state)))
 
             if c > t_conf[a_p] and d < t_dist:
-                state, reward, done, info = env.step(a_p)
-                states.append(process_state(env.decode(state)))
+                # state, reward, done, info = env.step(a_p)
+                states.append(process_state(state))
                 actions.append(a_p)
             else:
                 pres = -1
                 while pres not in [0, 1, 2, 3, 4, 5]:
                     pres = int(input("Expert: enter the next action I should take [0-5]: "))
-                states.append(process_state(env.decode(state)))
+                states.append(process_state(state))
                 actions.append(pres)
                 svm = update_classifier(states, actions)
                 t_conf, t_dist = update_threshold(states, actions, action_space, t_dist_gamma, t_conf_gamma)
 
 
-                state, reward, done, info = env.step(pres)
+                # state, reward, done, info = env.step(pres)
         else:   # 4. execute the Corrective Demonstration step
             pres = -1
-            env.render()
             while pres not in [0, 1, 2, 3, 4, 5]:
                 pres = int(input("Expert: enter the next action I should take [0-5]: "))
-            states.append(process_state(env.decode(state)))
+            states.append(process_state(state))
             actions.append(pres)
             svm = update_classifier(states, actions)
             t_conf, t_dist = update_threshold(states, actions, action_space, t_dist_gamma, t_conf_gamma)
@@ -90,14 +95,14 @@ total_epochs, total_penalties = 0, 0
 episodes = 100
 
 for _ in range(episodes):
-    state = env.reset()
+    state = None
     epochs, penalties, reward = 0, 0, 0
     
     done = False
     
     while not done:
         action = np.argmax(q_table[state])
-        state, reward, done, info = env.step(action)
+        # state, reward, done, info = env.step(action)
 
         if reward == -10:
             penalties += 1

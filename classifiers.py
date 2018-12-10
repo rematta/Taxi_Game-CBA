@@ -6,15 +6,17 @@ from sklearn.neighbors import NearestNeighbors
 from sklearn.svm import SVC
 from sklearn.model_selection import train_test_split
 
+
 # Note for later: for us, the actions is the vector/direction of the pan
 
 def classifier(svm: SVC, feature):
-    #taxirow, taxicol, passloc, destidx = state
-    #feature = [taxirow, taxicol, passloc, destidx]
+    # taxirow, taxicol, passloc, destidx = state
+    # feature = [taxirow, taxicol, passloc, destidx]
     a_p = svm.predict([feature])
     c = svm.decision_function([feature])
     c = c[0][a_p[0]]
     return a_p[0], c, None
+
 
 def update_classifier(states, actions):
     # add dummy values to make sure there is 1 state for each action in our action space
@@ -33,9 +35,8 @@ def update_classifier(states, actions):
     at.append(4)
     at.append(5)
 
-
     svm = SVC(decision_function_shape='ovr')
-    if (len(at) < 5):
+    if len(at) < 5:
         return svm
     svm.fit(st, at)
 
@@ -63,7 +64,6 @@ def update_threshold(states, actions, action_space, t_dist_gamma, t_conf_gamma):
         t_dist = 0
         return t_conf, t_dist
 
-
     # t_dist update
     kdt = cKDTree(states)
     dists, neighs = kdt.query(states, 2)
@@ -74,9 +74,9 @@ def update_threshold(states, actions, action_space, t_dist_gamma, t_conf_gamma):
 
     # t_conf update
     # 1. split dataset into training and test
-    X_train, X_test, y_train, y_test = train_test_split(states, actions, test_size = 0.33, random_state = 42)
+    X_train, X_test, y_train, y_test = train_test_split(states, actions, test_size=0.33, random_state=42)
     # add dummy values to make sure there is 1 state for each action in our action space
-    X_train.append((-100,-100,-100,-100))
+    X_train.append((-100, -100, -100, -100))
     X_train.append((-101, -100, -100, -100))
     X_train.append((-102, -100, -100, -100))
     X_train.append((-103, -100, -100, -100))
@@ -91,7 +91,6 @@ def update_threshold(states, actions, action_space, t_dist_gamma, t_conf_gamma):
 
     svm_temp = SVC(decision_function_shape='ovr')
     svm_temp.fit(X_train, y_train)
-
 
     y_test_pred = svm_temp.predict(X_test)
     y_test_conf = svm_temp.decision_function(X_test)
@@ -112,7 +111,6 @@ def update_threshold(states, actions, action_space, t_dist_gamma, t_conf_gamma):
             t_conf[i] = t_conf_gamma * (miss_classified_conf[i] / miss_classified_num[i])
 
     return t_conf, t_dist
-
 
 
 def process_state(state):
