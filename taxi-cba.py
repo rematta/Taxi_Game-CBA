@@ -11,14 +11,22 @@ from classifiers import classifier, update_classifier, process_state, nearest_ne
 
 
 def read_file(file):
-    with open(file, 'rb') as f:
+    with open(file, 'r') as f:
         reader = csv.reader(f)
         your_list = list(reader)
+        last_list = your_list.pop(6)
+        for idx, small_list in enumerate(your_list):
+            small_list.extend(last_list)
+            your_list[idx] = small_list
+        your_list = np.asarray(your_list, np.float64)
         return your_list
 
 
 ########## Training the agent #################################################
 # Hyperparameters
+
+expert0 = read_file('expert_demo/expert_0.txt')
+
 t_conf_gamma = 2
 t_dist_gamma = 2
 
